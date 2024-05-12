@@ -1,23 +1,27 @@
 'use client';
 import { useEffect, useState } from 'react';
-import {
-  fetchMoviesThunk,
-  selectMovies,
-} from '@/lib/features/movies/moviesSlice';
+
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import styles from './Movies.module.scss';
 import { Button } from '@ui5/webcomponents-react';
 import { faHeart } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { Rating } from 'react-simple-star-rating';
+import {
+  fetchMovieThunk,
+  selectMovie,
+} from '@/lib/features/movies/moviesSlice';
+
 export const Movies = () => {
   const [movieName, setMovieName] = useState('Batman');
   const [inputValue, setInputValue] = useState('Batman');
   const dispatch = useAppDispatch();
-  const movies = useAppSelector(selectMovies);
+  const movie = useAppSelector(selectMovie);
+  let movieScore = (Number(movie.Metascore) * 5) / 100;
 
   useEffect(() => {
-    dispatch(fetchMoviesThunk(movieName));
+    dispatch(fetchMovieThunk(movieName));
   }, [dispatch, movieName]); // Add movieName as a dependency
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,6 +35,10 @@ export const Movies = () => {
   const handleResetClick = () => {
     setInputValue('');
   };
+
+  function roundToHalf(value: number) {
+    return Math.round(value * 2) / 2;
+  }
 
   return (
     <div className={styles['main-content']}>
@@ -67,11 +75,27 @@ export const Movies = () => {
       </div>
 
       <div className={styles.row}>
-        {movies.map((movie, index) => (
-          <div key={index} className={styles.movie}>
-            <div className={styles['movie-txt']}>
+        {movie.Title ? (
+          <div className={styles.movie}>
+            <div
+              className={styles['movie-txt']}
+              suppressHydrationWarning={true}
+            >
               <h2>{movie.Title}</h2>
               <p>{movie.Plot}</p>
+              <p>
+                <b>Actors: </b>
+                {movie.Actors}
+              </p>
+              <div>
+                <b>Rating: </b>
+                <Rating
+                  iconsCount={5}
+                  initialValue={roundToHalf(movieScore)}
+                  allowFraction={true}
+                />
+              </div>
+
               <Button>
                 Favorite <FontAwesomeIcon icon={faHeart} />
               </Button>
@@ -79,7 +103,9 @@ export const Movies = () => {
 
             <img src={movie.Poster} alt={movie.Title} />
           </div>
-        ))}
+        ) : (
+          <div>Movie not found</div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { createAppSlice } from '@/lib/createAppSlice';
 import { AppThunk } from '@/lib/store';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { fetchMovies } from './moviesApi';
+import { fetchMovie } from './moviesApi'; // Change to fetchMovie for fetching a single movie
 
 export interface Movie {
   Title: string;
@@ -32,41 +32,63 @@ export interface Movie {
 }
 
 export interface MovieState {
-  movies: Movie[];
+  movie: Movie;
 }
 
 const initialState: MovieState = {
-  movies: [],
+  movie: {
+    Title: '',
+    Year: '',
+    Rated: '',
+    Released: '',
+    Runtime: '',
+    Genre: '',
+    Director: '',
+    Writer: '',
+    Actors: '',
+    Plot: '',
+    Language: '',
+    Country: '',
+    Awards: '',
+    Poster: '',
+    Ratings: [],
+    Metascore: '',
+    imdbRating: '',
+    imdbVotes: '',
+    imdbID: '',
+    Type: '',
+    DVD: '',
+    BoxOffice: '',
+    Production: '',
+    Website: '',
+    Response: '',
+  },
 };
 
 export const movieSlice = createAppSlice({
   name: 'movie',
   initialState,
-  reducers: (create) => ({
-    setMovies: create.reducer((state, action: PayloadAction<Movie[]>) => {
-      // This will replace the current state with the new movies
-      state.movies = action.payload;
+  reducers: (builder) => ({
+    setMovie: builder.reducer((state, action: PayloadAction<Movie>) => {
+      // This will replace the current state with the new movie
+      state.movie = action.payload;
     }),
-    addMovie: create.reducer((state, action: PayloadAction<Movie>) => {
-      // This will add a new movie to the state
-      state.movies.push(action.payload);
-    }),
-    clearMovies: create.reducer((state) => {
+    clearMovie: builder.reducer((state) => {
       // This will reset the state to the initial state
-      state.movies = [];
+      state.movie = initialState.movie;
     }),
   }),
   selectors: {
-    selectMovies: (state) => state.movies,
+    selectMovie: (state) => state.movie,
   },
 });
 
-export const fetchMoviesThunk =
+export const fetchMovieThunk =
   (movieName: string): AppThunk =>
   async (dispatch) => {
-    const movies = await fetchMovies(movieName);
-    dispatch(setMovies(movies));
+    const movie = await fetchMovie(movieName); // Change to fetchMovie for fetching a single movie
+    dispatch(setMovie(movie));
   };
 
-export const { setMovies, addMovie, clearMovies } = movieSlice.actions;
-export const { selectMovies } = movieSlice.selectors;
+export const { setMovie, clearMovie } = movieSlice.actions;
+export const { selectMovie } = movieSlice.selectors;
